@@ -21,7 +21,7 @@ public class THServer {
 
     public static void main(String[] args) {
         Hashtable<String, Seat_t> seats = new Hashtable<>();
-        seats.put("PA", new Seat_t("Pit - Zone A", 0, 50.00));
+        seats.put("PA", new Seat_t("Pit - Zone A", 100, 50.00));
         seats.put("PB", new Seat_t("Pit - Zone B", 200, 40.00));
         seats.put("PC", new Seat_t("Pit - Zone C", 300, 30.00));
         seats.put("CB", new Seat_t("Center Balcony", 250, 35.00));
