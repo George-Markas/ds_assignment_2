@@ -97,7 +97,28 @@ public class THImpl extends UnicastRemoteObject implements THInterface {
         return bookingInfo;
     }
 
-//    public String cancelBooking(String name) {
-//
-//    }
+    public String cancelBooking(String id, int pieces, String name) {
+        String transactionResponse = "Unknown error; please contact the service provider, sorry for the inconvenience";
+        if(!bookings.containsKey(name)) {
+            transactionResponse = "There are no bookings under the provided name";
+        } else {
+            ArrayList<Booking_t> personalBookings = bookings.get(name);
+            for(Booking_t temp : personalBookings) {
+                if(temp.getId().equals(id) && temp.getPieces() > pieces) {
+                    temp.updatePieces(temp.getPieces() - pieces);
+                    seats.get(id).updateAvailable(seats.get(id).getAvailable() + pieces);
+                    transactionResponse = "Cancellation successful; " + pieces + " seat(s) removed from the booking";
+                    break;
+                } else if(temp.getId().equals(id)) {
+                    seats.get(id).updateAvailable(seats.get(id).getAvailable() + pieces);
+                    personalBookings.remove(temp);
+                    transactionResponse = "Cancellation successful; booking fully undone";
+                    break;
+                }
+            }
+
+        }
+
+        return transactionResponse;
+    }
 }

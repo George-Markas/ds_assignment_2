@@ -30,11 +30,13 @@ public class THServer {
         Hashtable<String, ArrayList<Booking_t>> bookings = new Hashtable<>();
 
         // Debug entries to not have to manually book from the client side
-        bookings.put("Fritz Schwarz", new ArrayList<Booking_t>());
-        bookings.get("Fritz Schwarz").add(new Booking_t("PB", 4));
-        bookings.get("Fritz Schwarz").add(new Booking_t("SB", 6));
         bookings.put("John Doe", new ArrayList<Booking_t>());
-        bookings.get("John Doe").add(new Booking_t("SB", 3));
+        bookings.get("John Doe").add(new Booking_t("PB", 4));
+        bookings.get("John Doe").add(new Booking_t("SB", 6));
+        bookings.get("John Doe").add(new Booking_t("PA", 11));
+
+//        bookings.put("John Doe", new ArrayList<Booking_t>());
+//        bookings.get("John Doe").add(new Booking_t("SB", 3));
 
         try {
             THImpl obj = new THImpl(seats, bookings);

@@ -23,11 +23,13 @@ public class THClient {
             Registry registry = LocateRegistry.getRegistry(null, 2222);
             THInterface stub = (THInterface) registry.lookup("THInterface");
             switch (args[0]) {
-                case "list":
+                case "list": {
                     StringBuilder info = stub.listSeats();
                     System.out.println(info);
                     break;
-                case "book":
+                }
+
+                case "book": {
                     String requestedId = args[1];
                     int requestedPieces = Integer.parseInt(args[2]);
                     String bookingName = args[3];
@@ -44,14 +46,25 @@ public class THClient {
                             System.out.println(transactionResponse);
                         }
                     }
-                case "guests":
+                    break;
+                }
+
+                case "guests": {
                     StringBuilder bookingInfo = stub.listGuests();
                     System.out.println(bookingInfo);
                     break;
-                case "cancel":
-                    // code
+                }
+
+                case "cancel": {
+                    String requestedId = args[1];
+                    int requestedPieces = Integer.parseInt(args[2]);
+                    String bookingName = args[3];
+                    String transactionResponse = stub.cancelBooking(requestedId, requestedPieces, bookingName);
+                    System.out.println(transactionResponse);
                     break;
-                default:
+                }
+
+                default: {
                     System.out.println("""
                             \033[1m\033[3mUsage:\033[0m
                             THClient
@@ -64,6 +77,7 @@ public class THClient {
                                 cancel <hostname> <type> <number> <name>
                             """);
                     System.exit(0);
+                }
             }
         } catch (Exception e) {
             logger.log(Level.SEVERE, "An error has occurred", e);

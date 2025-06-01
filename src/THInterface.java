@@ -14,7 +14,7 @@ public interface THInterface extends Remote {
     public StringBuilder listGuests() throws RemoteException;
 
     // Cancel a booking
-//    public String cancelBooking(String name) throws RemoteException;
+    public String cancelBooking(String id, int pieces, String name) throws RemoteException;
 }
 
 

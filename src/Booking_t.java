@@ -19,7 +19,7 @@ public class Booking_t {
         this.id = id;
     }
 
-    public void setPieces(int pieces) {
+    public void updatePieces(int pieces) {
         this.pieces = pieces;
     }
 }
