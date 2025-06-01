@@ -1,5 +1,6 @@
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
+import java.util.Scanner;
 
 public class THClient {
     public static void main(String[] args) {
@@ -15,8 +16,19 @@ public class THClient {
                     String requestedId = args[1];
                     int requestedPieces = Integer.parseInt(args[2]);
                     String bookingName = args[3];
-                    String transactionResponse = stub.book(requestedId, requestedPieces, bookingName);
-                    System.out.println(transactionResponse);
+                    String[] transactionResponse = stub.bookInitial(requestedId, requestedPieces, bookingName);
+                    if(transactionResponse[1].isEmpty()) {
+                        System.out.println(transactionResponse[0]);
+                    } else {
+                        System.out.print("There aren't enough seats available, would you like to book the remaining "
+                                + transactionResponse[2] + " seat(s)? [\033[0;32my\033[0m/\033[0;31mn\033[0m] ");
+                        Scanner scanner = new Scanner(System.in);
+                        if(scanner.nextLine().equalsIgnoreCase("y")) {
+                            transactionResponse[0] = stub.bookInsufficientResponse(requestedId, requestedPieces,
+                                    bookingName, transactionResponse);
+                            System.out.println(transactionResponse[0]);
+                        }
+                    }
                 case "guests":
                     // code
                     break;

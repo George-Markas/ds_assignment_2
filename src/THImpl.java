@@ -30,26 +30,44 @@ public class THImpl extends UnicastRemoteObject implements THInterface {
     }
 
     @Override
-    public String book(String id, int pieces, String name) {
-        String requestedType = null;
-        String transactionResult = "Unknown error; please contact the service provider, sorry for the inconvenience";
-        for (Seat_t type : seats) {
-            if (type.getId().equals(id)) {
+    public String[] bookInitial(String id, int pieces, String name) {
+        String requestedType = "";
+        int index = 0;
+        String[] transactionResult = {"Unknown error; please contact the service provider, sorry for the inconvenience",
+                "", ""};
+
+        for(Seat_t type : seats) {
+            if(type.getId().equals(id)) {
                 requestedType = type.getId();
-                if (type.getAvailable() >= pieces) {
+                if(type.getAvailable() >= pieces) {
                     bookings.add(new Booking_t(id, pieces, name));
                     type.updateAvailable(type.getAvailable() - pieces);
-                    transactionResult = "Successful booking for " + type.getPrettyName() + " x" + pieces;
-                } else {
-                    transactionResult = "There aren't enough seats available satisfy the requested number";
+                    transactionResult[0] = "Successful booking for " + type.getPrettyName() + "; " + pieces + " seat(s)";
+                } else if (type.getAvailable() > 0 ) {
+                    transactionResult[1] = String.valueOf(index);
+                    transactionResult[2] = String.valueOf(type.getAvailable());
                 }
             }
+            index++;
         }
 
-        if (requestedType == null) {
-            transactionResult = "Error: the given ID doesn't correspond to any seat type";
+        if(requestedType.isEmpty()) {
+            transactionResult[0] = "Error: the given ID doesn't correspond to any seat type";
         }
 
         return transactionResult;
     }
+
+    @Override
+    public String bookInsufficientResponse(String id, int pieces, String name, String[] transactionResult) {
+        bookings.add(new Booking_t(id, Integer.parseInt(transactionResult[1]), name));
+        Seat_t type = seats[Integer.parseInt(transactionResult[1])];
+        String transactionResponse = "Successful booking for " + type.getPrettyName() + "; "
+                + type.getAvailable() + " seat(s)";
+        type.updateAvailable(0);
+
+        return transactionResponse;
+    }
 }
+
+//transactionResult = "There aren't enough seats available, would you like to book the remaining " + type.getPrettyName() + " seat(s)?";
