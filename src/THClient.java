@@ -20,7 +20,7 @@ public class THClient {
 
     public static void main(String[] args) {
         try {
-            Registry registry = LocateRegistry.getRegistry(null, 2222);
+            Registry registry = LocateRegistry.getRegistry(args[1], 2222);
             THInterface stub = (THInterface) registry.lookup("THInterface");
             switch (args[0]) {
                 case "list": {
@@ -30,19 +30,29 @@ public class THClient {
                 }
 
                 case "book": {
-                    String requestedId = args[1];
-                    int requestedPieces = Integer.parseInt(args[2]);
-                    String bookingName = args[3];
+                    String requestedId = args[2];
+                    int requestedPieces = Integer.parseInt(args[3]);
+                    String bookingName = args[4];
                     String transactionResponse = stub.bookInitial(requestedId, requestedPieces, bookingName);
                     if(!transactionResponse.isEmpty()) {
                         System.out.println(transactionResponse);
-                    } else {
+                    } else if(stub.getAvailableSeats(requestedId) > 0) {
                         System.out.print("There aren't enough seats available, would you like to book the remaining "
                                 + stub.getAvailableSeats(requestedId) + " seat(s)? [\033[0;32my\033[0m/\033[0;31mn\033[0m] ");
                         Scanner scanner = new Scanner(System.in);
                         if(scanner.nextLine().equalsIgnoreCase("y")) {
                             transactionResponse = stub.bookInsufficientResponse(requestedId, requestedPieces,
                                     bookingName);
+                            System.out.println(transactionResponse);
+                        }
+                    } else {
+                        System.out.println("There aren't enough seats available. Would you like to be added to a mailing " +
+                                "list to be notified if seats do become available?" +
+                                " [\033[0;32my\033[0m/\033[0;31mn\033[0m] ");
+
+                        Scanner scanner = new Scanner(System.in);
+                        if(scanner.nextLine().equalsIgnoreCase("y")) {
+                            transactionResponse = stub.addToMailingList(requestedId, bookingName);
                             System.out.println(transactionResponse);
                         }
                     }
@@ -56,9 +66,9 @@ public class THClient {
                 }
 
                 case "cancel": {
-                    String requestedId = args[1];
-                    int requestedPieces = Integer.parseInt(args[2]);
-                    String bookingName = args[3];
+                    String requestedId = args[2];
+                    int requestedPieces = Integer.parseInt(args[3]);
+                    String bookingName = args[4];
                     String transactionResponse = stub.cancelBooking(requestedId, requestedPieces, bookingName);
                     System.out.println(transactionResponse);
                     break;

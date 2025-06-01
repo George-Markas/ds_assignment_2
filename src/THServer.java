@@ -21,7 +21,7 @@ public class THServer {
 
     public static void main(String[] args) {
         Hashtable<String, Seat_t> seats = new Hashtable<>();
-        seats.put("PA", new Seat_t("Pit - Zone A", 100, 50.00));
+        seats.put("PA", new Seat_t("Pit - Zone A", 0, 50.00));
         seats.put("PB", new Seat_t("Pit - Zone B", 200, 40.00));
         seats.put("PC", new Seat_t("Pit - Zone C", 300, 30.00));
         seats.put("CB", new Seat_t("Center Balcony", 250, 35.00));
@@ -29,17 +29,19 @@ public class THServer {
 
         Hashtable<String, ArrayList<Booking_t>> bookings = new Hashtable<>();
 
+        Hashtable<String, String> mailingList = new Hashtable<>();
+
         // Debug entries to not have to manually book from the client side
-        bookings.put("John Doe", new ArrayList<Booking_t>());
-        bookings.get("John Doe").add(new Booking_t("PB", 4));
-        bookings.get("John Doe").add(new Booking_t("SB", 6));
-        bookings.get("John Doe").add(new Booking_t("PA", 11));
+//        bookings.put("John Doe", new ArrayList<Booking_t>());
+//        bookings.get("John Doe").add(new Booking_t("PB", 4));
+//        bookings.get("John Doe").add(new Booking_t("SB", 6));
+//        bookings.get("John Doe").add(new Booking_t("PA", 11));
 
 //        bookings.put("John Doe", new ArrayList<Booking_t>());
 //        bookings.get("John Doe").add(new Booking_t("SB", 3));
 
         try {
-            THImpl obj = new THImpl(seats, bookings);
+            THImpl obj = new THImpl(seats, bookings, mailingList);
             Registry registry = LocateRegistry.createRegistry(2222);
             registry.rebind("THInterface", obj);
             System.out.println("Server's bootstrapped!");

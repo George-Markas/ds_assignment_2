@@ -1,3 +1,5 @@
+import java.rmi.server.RemoteServer;
+import java.rmi.server.ServerNotActiveException;
 import java.rmi.server.UnicastRemoteObject;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
@@ -7,11 +9,13 @@ import java.util.Enumeration;
 public class THImpl extends UnicastRemoteObject implements THInterface {
     private final Hashtable<String, Seat_t> seats;
     private final Hashtable<String, ArrayList<Booking_t>> bookings;
+    private final Hashtable<String, String> mailingList;
 
-    protected THImpl(Hashtable<String, Seat_t> seats, Hashtable<String, ArrayList<Booking_t>> bookings) throws RemoteException {
+    protected THImpl(Hashtable<String, Seat_t> seats, Hashtable<String, ArrayList<Booking_t>> bookings, Hashtable<String, String> mailingList) throws RemoteException {
         super();
         this.seats = seats;
         this.bookings = bookings;
+        this.mailingList = mailingList;
     }
 
     @Override
@@ -53,6 +57,8 @@ public class THImpl extends UnicastRemoteObject implements THInterface {
                 temp.updateAvailable(temp.getAvailable() - pieces);
                 transactionResult = "Successful booking for " + temp.getPrettyName() + "; " + pieces + " seat(s)";
             } else if(temp.getAvailable() > 0) {
+                transactionResult = "__NON_EMPTY__";
+            } else {
                 transactionResult = "";
             }
         } else {
@@ -119,6 +125,18 @@ public class THImpl extends UnicastRemoteObject implements THInterface {
 
         }
 
+        return transactionResponse;
+    }
+
+    public String addToMailingList(String id, String name) {
+        String transactionResponse = "Unknown error; please contact the service provider, sorry for the inconvenience";
+        try {
+            String clientHost = RemoteServer.getClientHost();
+            mailingList.put(name, clientHost);
+            transactionResponse = "Successfully added to the mailing list";
+        } catch(ServerNotActiveException e) {
+            transactionResponse = "Error: couldn't get client host" + e.getMessage();
+        }
         return transactionResponse;
     }
 }
