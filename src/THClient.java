@@ -20,6 +20,21 @@ public class THClient {
 
     public static void main(String[] args) {
         try {
+            if(args.length < 2) {
+                System.out.println("""
+                            \033[1m\033[3mUsage:\033[0m
+                            THClient
+                                list <hostname>
+                            THClient
+                                book <hostname> <type> <number> <name>
+                            THClient
+                                guests <hostname>
+                            THClient
+                                cancel <hostname> <type> <number> <name>
+                            """);
+                System.exit(0);
+            }
+
             Registry registry = LocateRegistry.getRegistry(args[1], 2222);
             THInterface stub = (THInterface) registry.lookup("THInterface");
             switch (args[0]) {
