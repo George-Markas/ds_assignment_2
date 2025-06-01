@@ -11,7 +11,7 @@ public class THClient {
     static {
         try {
             FileHandler fileHandler = new FileHandler("client.log", true);
-            fileHandler.setFormatter(new SimpleFormatter());
+            fileHandler.setFormatter(new SimpleFormatter()) ;
             logger.addHandler(fileHandler);
         } catch(Exception e) {
             e.printStackTrace();

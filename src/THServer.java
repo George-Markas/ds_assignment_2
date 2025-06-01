@@ -28,17 +28,7 @@ public class THServer {
         seats.put("SB", new Seat_t("Side Balconies", 50, 25.00));
 
         Hashtable<String, ArrayList<Booking_t>> bookings = new Hashtable<>();
-
         Hashtable<String, String> mailingList = new Hashtable<>();
-
-        // Debug entries to not have to manually book from the client side
-//        bookings.put("John Doe", new ArrayList<Booking_t>());
-//        bookings.get("John Doe").add(new Booking_t("PB", 4));
-//        bookings.get("John Doe").add(new Booking_t("SB", 6));
-//        bookings.get("John Doe").add(new Booking_t("PA", 11));
-
-//        bookings.put("John Doe", new ArrayList<Booking_t>());
-//        bookings.get("John Doe").add(new Booking_t("SB", 3));
 
         try {
             THImpl obj = new THImpl(seats, bookings, mailingList);

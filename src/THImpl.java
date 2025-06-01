@@ -45,7 +45,7 @@ public class THImpl extends UnicastRemoteObject implements THInterface {
 
     @Override
     public String bookInitial(String id, int pieces, String name) {
-        String transactionResult = "Unknown error; please contact the service provider, sorry for the inconvenience";
+        String transactionResult;
 
         if(seats.containsKey(id)) {
             Seat_t temp = seats.get(id);
@@ -129,7 +129,7 @@ public class THImpl extends UnicastRemoteObject implements THInterface {
     }
 
     public String addToMailingList(String id, String name) {
-        String transactionResponse = "Unknown error; please contact the service provider, sorry for the inconvenience";
+        String transactionResponse;
         try {
             String clientHost = RemoteServer.getClientHost();
             mailingList.put(name, clientHost);
