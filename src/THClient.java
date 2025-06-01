@@ -8,9 +8,15 @@ public class THClient {
             THInterface stub = (THInterface) registry.lookup("THInterface");
             switch (args[0]) {
                 case "list":
-                    StringBuilder info = stub.listInfo();
+                    StringBuilder info = stub.list();
                     System.out.println(info);
                     break;
+                case "book":
+                    String requestedId = args[1];
+                    int requestedPieces = Integer.parseInt(args[2]);
+                    String bookingName = args[3];
+                    String transactionResponse = stub.book(requestedId, requestedPieces, bookingName);
+                    System.out.println(transactionResponse);
                 case "guests":
                     // code
                     break;
