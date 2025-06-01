@@ -1,73 +1,92 @@
 import java.rmi.server.UnicastRemoteObject;
 import java.rmi.RemoteException;
-import java.util.ArrayList;
+import java.util.Hashtable;
+import java.util.Enumeration;
 
 public class THImpl extends UnicastRemoteObject implements THInterface {
-    private final Seat_t[] seats;
-    private final ArrayList<Booking_t> bookings;
+    private final Hashtable<String, Seat_t> seats;
+    private final Hashtable<String, Booking_t> bookings;
 
-    protected THImpl(Seat_t[] seats, ArrayList<Booking_t> bookings) throws RemoteException {
+    protected THImpl(Hashtable<String, Seat_t> seats, Hashtable<String, Booking_t> bookings) throws RemoteException {
         super();
         this.seats = seats;
         this.bookings = bookings;
     }
 
     @Override
-    public StringBuilder list() {
+    public StringBuilder listSeats() {
+        Enumeration<String> keys = seats.keys();
         StringBuilder info = new StringBuilder();
-        for (Seat_t type : seats) {
-            info.append(type.getAvailable())
+        while(keys.hasMoreElements()) {
+            String key = keys.nextElement();
+            Seat_t temp = seats.get(key);
+            info.append(temp.getAvailable())
                     .append(" Seats ")
-                    .append(type.getPrettyName())
+                    .append(temp.getPrettyName())
                     .append(" (ID: ")
-                    .append(type.getId())
+                    .append(key)
                     .append(") ")
                     .append("- price: ")
-                    .append(type.getPricePerPiece())
+                    .append(temp.getPricePerPiece())
                     .append("\n");
         }
         return info;
     }
 
     @Override
-    public String[] bookInitial(String id, int pieces, String name) {
-        String requestedType = "";
-        int index = 0;
-        String[] transactionResult = {"Unknown error; please contact the service provider, sorry for the inconvenience",
-                "", ""};
+    public int getAvailableSeats(String id) {
+        return seats.get(id).getAvailable();
+    }
 
-        for(Seat_t type : seats) {
-            if(type.getId().equals(id)) {
-                requestedType = type.getId();
-                if(type.getAvailable() >= pieces) {
-                    bookings.add(new Booking_t(id, pieces, name));
-                    type.updateAvailable(type.getAvailable() - pieces);
-                    transactionResult[0] = "Successful booking for " + type.getPrettyName() + "; " + pieces + " seat(s)";
-                } else if (type.getAvailable() > 0 ) {
-                    transactionResult[1] = String.valueOf(index);
-                    transactionResult[2] = String.valueOf(type.getAvailable());
-                }
+    @Override
+    public String bookInitial(String id, int pieces, String name) {
+        String transactionResult = "Unknown error; please contact the service provider, sorry for the inconvenience";
+
+        if(seats.containsKey(id)) {
+            Seat_t temp = seats.get(id);
+            if(temp.getAvailable() >= pieces) {
+                bookings.put(name, new Booking_t(id, pieces));
+                temp.updateAvailable(temp.getAvailable() - pieces);
+                transactionResult = "Successful booking for " + temp.getPrettyName() + "; " + pieces + " seat(s)";
+            } else if(temp.getAvailable() > 0) {
+                transactionResult = "";
             }
-            index++;
-        }
-
-        if(requestedType.isEmpty()) {
-            transactionResult[0] = "Error: the given ID doesn't correspond to any seat type";
+        } else {
+            transactionResult = "Error: the given ID doesn't correspond to any seat type";
         }
 
         return transactionResult;
     }
 
     @Override
-    public String bookInsufficientResponse(String id, int pieces, String name, String[] transactionResult) {
-        bookings.add(new Booking_t(id, Integer.parseInt(transactionResult[1]), name));
-        Seat_t type = seats[Integer.parseInt(transactionResult[1])];
-        String transactionResponse = "Successful booking for " + type.getPrettyName() + "; "
-                + type.getAvailable() + " seat(s)";
-        type.updateAvailable(0);
+    public String bookInsufficientResponse(String id, int pieces, String name) {
+        bookings.put(name, new Booking_t(id, pieces));
+        Seat_t temp = seats.get(id);
+        String transactionResponse = "Successful booking for " + temp.getPrettyName() + "; "
+                + temp.getAvailable() + " seat(s)";
+        temp.updateAvailable(0);
 
         return transactionResponse;
     }
-}
 
-//transactionResult = "There aren't enough seats available, would you like to book the remaining " + type.getPrettyName() + " seat(s)?";
+    public StringBuilder listGuests() {
+        Enumeration<String> keys = bookings.keys();
+        StringBuilder bookingInfo = new StringBuilder();
+        Booking_t tempBooking;
+        Seat_t tempSeat;
+        while(keys.hasMoreElements()) {
+            String key = keys.nextElement();
+            tempBooking = bookings.get(key);
+            tempSeat = seats.get(tempBooking.getId());
+               bookingInfo.append(key)
+                       .append("; ")
+                       .append(tempBooking.getPieces())
+                       .append(" for ")
+                       .append(tempSeat.getPrettyName())
+                       .append("; total: $")
+                       .append(tempSeat.getPricePerPiece() * tempBooking.getPieces())
+                       .append("\n");
+        }
+        return bookingInfo;
+    }
+}

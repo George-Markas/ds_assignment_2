@@ -1,36 +1,52 @@
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.util.Scanner;
+import java.util.logging.FileHandler;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.logging.SimpleFormatter;
 
 public class THClient {
+    private static final Logger logger = Logger.getLogger("THClient");
+    static {
+        try {
+            FileHandler fileHandler = new FileHandler("client.log", true);
+            fileHandler.setFormatter(new SimpleFormatter());
+            logger.addHandler(fileHandler);
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     public static void main(String[] args) {
         try {
             Registry registry = LocateRegistry.getRegistry(null, 2222);
             THInterface stub = (THInterface) registry.lookup("THInterface");
             switch (args[0]) {
                 case "list":
-                    StringBuilder info = stub.list();
+                    StringBuilder info = stub.listSeats();
                     System.out.println(info);
                     break;
                 case "book":
                     String requestedId = args[1];
                     int requestedPieces = Integer.parseInt(args[2]);
                     String bookingName = args[3];
-                    String[] transactionResponse = stub.bookInitial(requestedId, requestedPieces, bookingName);
-                    if(transactionResponse[1].isEmpty()) {
-                        System.out.println(transactionResponse[0]);
+                    String transactionResponse = stub.bookInitial(requestedId, requestedPieces, bookingName);
+                    if(!transactionResponse.isEmpty()) {
+                        System.out.println(transactionResponse);
                     } else {
                         System.out.print("There aren't enough seats available, would you like to book the remaining "
-                                + transactionResponse[2] + " seat(s)? [\033[0;32my\033[0m/\033[0;31mn\033[0m] ");
+                                + stub.getAvailableSeats(requestedId) + " seat(s)? [\033[0;32my\033[0m/\033[0;31mn\033[0m] ");
                         Scanner scanner = new Scanner(System.in);
                         if(scanner.nextLine().equalsIgnoreCase("y")) {
-                            transactionResponse[0] = stub.bookInsufficientResponse(requestedId, requestedPieces,
-                                    bookingName, transactionResponse);
-                            System.out.println(transactionResponse[0]);
+                            transactionResponse = stub.bookInsufficientResponse(requestedId, requestedPieces,
+                                    bookingName);
+                            System.out.println(transactionResponse);
                         }
                     }
                 case "guests":
-                    // code
+                    StringBuilder bookingInfo = stub.listGuests();
+                    System.out.println(bookingInfo);
                     break;
                 case "cancel":
                     // code
@@ -50,8 +66,7 @@ public class THClient {
                     System.exit(0);
             }
         } catch (Exception e) {
-            System.err.println("Client exception: " + e);
-            e.printStackTrace();
+            logger.log(Level.SEVERE, "An error has occurred", e);
         }
     }
 }

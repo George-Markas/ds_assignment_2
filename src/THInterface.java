@@ -3,11 +3,15 @@ import java.rmi.RemoteException;
 
 public interface THInterface extends Remote {
     // List available seats
-    public StringBuilder list() throws RemoteException;
+    public StringBuilder listSeats() throws RemoteException;
 
     // Make a booking
-    public String[] bookInitial(String id, int pieces, String name) throws RemoteException;
-    public String bookInsufficientResponse(String id, int pieces, String name, String[] transactionResult) throws RemoteException;
+    public String bookInitial(String id, int pieces, String name) throws RemoteException;
+    public int getAvailableSeats(String id) throws RemoteException;
+    public String bookInsufficientResponse(String id, int pieces, String name) throws RemoteException;
+
+    // List booking entries
+    public StringBuilder listGuests() throws RemoteException;
 }
 
 
