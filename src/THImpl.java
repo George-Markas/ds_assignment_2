@@ -1,13 +1,14 @@
 import java.rmi.server.UnicastRemoteObject;
 import java.rmi.RemoteException;
+import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Enumeration;
 
 public class THImpl extends UnicastRemoteObject implements THInterface {
     private final Hashtable<String, Seat_t> seats;
-    private final Hashtable<String, Booking_t> bookings;
+    private final Hashtable<String, ArrayList<Booking_t>> bookings;
 
-    protected THImpl(Hashtable<String, Seat_t> seats, Hashtable<String, Booking_t> bookings) throws RemoteException {
+    protected THImpl(Hashtable<String, Seat_t> seats, Hashtable<String, ArrayList<Booking_t>> bookings) throws RemoteException {
         super();
         this.seats = seats;
         this.bookings = bookings;
@@ -26,7 +27,7 @@ public class THImpl extends UnicastRemoteObject implements THInterface {
                     .append(" (ID: ")
                     .append(key)
                     .append(") ")
-                    .append("- price: ")
+                    .append("- price: $")
                     .append(temp.getPricePerPiece())
                     .append("\n");
         }
@@ -45,7 +46,10 @@ public class THImpl extends UnicastRemoteObject implements THInterface {
         if(seats.containsKey(id)) {
             Seat_t temp = seats.get(id);
             if(temp.getAvailable() >= pieces) {
-                bookings.put(name, new Booking_t(id, pieces));
+                if(!bookings.containsKey(name)) {
+                    bookings.put(name, new ArrayList<>());
+                }
+                bookings.get(name).add(new Booking_t(id, pieces));
                 temp.updateAvailable(temp.getAvailable() - pieces);
                 transactionResult = "Successful booking for " + temp.getPrettyName() + "; " + pieces + " seat(s)";
             } else if(temp.getAvailable() > 0) {
@@ -60,7 +64,10 @@ public class THImpl extends UnicastRemoteObject implements THInterface {
 
     @Override
     public String bookInsufficientResponse(String id, int pieces, String name) {
-        bookings.put(name, new Booking_t(id, pieces));
+        if(!bookings.containsKey(name)) {
+            bookings.put(name, new ArrayList<>());
+        }
+        bookings.get(name).add(new Booking_t(id, pieces));
         Seat_t temp = seats.get(id);
         String transactionResponse = "Successful booking for " + temp.getPrettyName() + "; "
                 + temp.getAvailable() + " seat(s)";
@@ -72,21 +79,25 @@ public class THImpl extends UnicastRemoteObject implements THInterface {
     public StringBuilder listGuests() {
         Enumeration<String> keys = bookings.keys();
         StringBuilder bookingInfo = new StringBuilder();
-        Booking_t tempBooking;
-        Seat_t tempSeat;
+        ArrayList<Booking_t> tempBooking;
         while(keys.hasMoreElements()) {
             String key = keys.nextElement();
             tempBooking = bookings.get(key);
-            tempSeat = seats.get(tempBooking.getId());
-               bookingInfo.append(key)
-                       .append("; ")
-                       .append(tempBooking.getPieces())
-                       .append(" for ")
-                       .append(tempSeat.getPrettyName())
-                       .append("; total: $")
-                       .append(tempSeat.getPricePerPiece() * tempBooking.getPieces())
-                       .append("\n");
+            for(Booking_t temp : tempBooking) {
+                bookingInfo.append(key)
+                        .append("; ")
+                        .append(temp.getPieces())
+                        .append(" for ")
+                        .append(seats.get(temp.getId()).getPrettyName())
+                        .append("; total: $")
+                        .append(seats.get(temp.getId()).getPricePerPiece() * temp.getPieces())
+                        .append("\n");
+            }
         }
         return bookingInfo;
     }
+
+//    public String cancelBooking(String name) {
+//
+//    }
 }

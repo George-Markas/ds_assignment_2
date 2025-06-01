@@ -5,6 +5,7 @@ import java.util.logging.Logger;
 import java.util.logging.FileHandler;
 import java.util.logging.SimpleFormatter;
 import java.util.Hashtable;
+import java.util.ArrayList;
 
 public class THServer {
     private static final Logger logger = Logger.getLogger("THServer");
@@ -26,12 +27,14 @@ public class THServer {
         seats.put("CB", new Seat_t("Center Balcony", 250, 35.00));
         seats.put("SB", new Seat_t("Side Balconies", 50, 25.00));
 
-        Hashtable<String, Booking_t> bookings = new Hashtable<>();
+        Hashtable<String, ArrayList<Booking_t>> bookings = new Hashtable<>();
 
         // Debug entries to not have to manually book from the client side
-        bookings.put("Fritz Schwarz", new Booking_t("PB", 4));
-        bookings.put("Hans Zimmer", new Booking_t("PA", 2));
-        bookings.put("Karl Weiss", new Booking_t("SB", 1));
+        bookings.put("Fritz Schwarz", new ArrayList<Booking_t>());
+        bookings.get("Fritz Schwarz").add(new Booking_t("PB", 4));
+        bookings.get("Fritz Schwarz").add(new Booking_t("SB", 6));
+        bookings.put("John Doe", new ArrayList<Booking_t>());
+        bookings.get("John Doe").add(new Booking_t("SB", 3));
 
         try {
             THImpl obj = new THImpl(seats, bookings);
